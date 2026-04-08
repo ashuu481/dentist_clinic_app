@@ -7,8 +7,14 @@ from flask import send_file
 from flask import session, redirect, url_for
 app = Flask(__name__)
 app.secret_key = "secret123"
+
+import os
+
 def get_db():
-    conn = sqlite3.connect('database.db')
+    db_path = os.path.join(os.getcwd(), 'database.db')
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    return conn
     conn.row_factory = sqlite3.Row
     return conn
 @app.route('/logout')
@@ -165,3 +171,8 @@ def treatment(patient_id):
 
 if __name__ == '__main__':
     app.run(debug=True)
+    import os
+
+if __name__ == '__main__':
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
