@@ -15,14 +15,17 @@ import sqlite3
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 db_path = os.path.join(BASE_DIR, "database.db")
 
-conn = sqlite3.connect(db_path)
+import os
+import sqlite3
+
 def get_db():
-    db_path = os.path.join(os.getcwd(), 'database.db')
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    db_path = os.path.join(BASE_DIR, "database.db")
+
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     return conn
-    conn.row_factory = sqlite3.Row
-    return conn
+
 @app.route('/logout')
 def logout():
     session.clear()
