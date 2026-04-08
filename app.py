@@ -9,7 +9,13 @@ app = Flask(__name__)
 app.secret_key = "secret123"
 
 import os
+import os
+import sqlite3
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+db_path = os.path.join(BASE_DIR, "database.db")
+
+conn = sqlite3.connect(db_path)
 def get_db():
     db_path = os.path.join(os.getcwd(), 'database.db')
     conn = sqlite3.connect(db_path)
@@ -176,3 +182,5 @@ if __name__ == '__main__':
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
+if __name__ == "__main__":
+  app.run(host="0.0.0.0", port=5000)
