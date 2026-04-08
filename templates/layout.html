@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dighi Dental Care</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<button onclick="toggleTheme()">Toggle Theme</button>
+<div class="sidebar">
+    <h2>🦷 Dighi Dental</h2>
+    <a href="/">Dashboard</a>
+    <a href="/patients">Patients</a>
+    <a href="/reminders">Reminders</a>
+    <a href="/logout">Logout</a>
+</div>
+
+<div class="main">
+    {% block content %}{% endblock %}
+</div>
+<script>
+function toggleTheme() {
+    document.body.classList.toggle("dark");
+}
+</script>
+</body>
+</html>
