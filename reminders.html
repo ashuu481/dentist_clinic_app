@@ -1,0 +1,31 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+
+<h2>Pending Follow-ups</h2>
+
+<table>
+<tr>
+    <th>Name</th>
+    <th>Mobile</th>
+    <th>Next Visit</th>
+    <th>Action</th>
+</tr>
+
+{% for p in patients %}
+<tr>
+    <td>{{ p.name }}</td>
+    <td>{{ p.mobile }}</td>
+    <td>{{ p.next_visit }}</td>
+    <td>
+        <a target="_blank"
+           href="https://wa.me/91{{ p.mobile }}?text=Hello {{ p.name }}, this is reminder from Dighi Dental Care. Your appointment is due. Please visit.">
+           WhatsApp
+        </a>
+    </td>
+</tr>
+{% endfor %}
+
+</table>
+
+{% endblock %}

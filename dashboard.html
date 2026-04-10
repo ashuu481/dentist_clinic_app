@@ -1,0 +1,12 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+
+<h1>Dashboard</h1>
+
+<div class="card">Total Patients: {{ total_patients }}</div>
+<div class="card">Total Treatments: {{ total_treatments }}</div>
+
+<a href="/patients"><button>Add Patient</button></a>
+
+{% endblock %}

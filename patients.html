@@ -1,0 +1,46 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+
+<h2>Add Patient</h2>
+
+<form method="POST">
+    <input name="name" placeholder="Name" required>
+    <input name="mobile" placeholder="Mobile" required>
+    <input name="age" placeholder="Age">
+    
+    <select name="gender">
+        <option>Male</option>
+        <option>Female</option>
+    </select>
+
+    <input name="complaint" placeholder="Complaint">
+    
+    <button type="submit">Save</button>
+</form>
+
+<h2>Patient List</h2>
+
+<table>
+<tr>
+    <th>Name</th>
+    <th>Mobile</th>
+    <th>Action</th>
+</tr>
+
+{% for p in patients %}
+<tr>
+    <td>{{ p.name }}</td>
+    <td>{{ p.mobile }}</td>
+    <td>
+        <td>
+    <a href="/treatment/{{ p.id }}">Treatment</a> |
+    <a href="/report/{{ p.id }}">Invoice</a>
+</td>
+    </td>
+     
+</tr>
+{% endfor %}
+</table>
+
+{% endblock %}
