@@ -43,27 +43,36 @@ def init_db():
 # ✅ CALL HERE
 init_db()
 # ---------------- LOGIN ----------------
-@app.route('/login', methods=['GET', 'POST'])
+from flask import render_template, request, redirect, session
+
+@app.route("/login", methods=["GET", "POST"])
 def login():
-    conn = get_db()
+    try:
+        if request.method == "POST":
+            username = request.form.get("username")
+            password = request.form.get("password")
 
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
+            conn = get_db()
+            cursor = conn.cursor()
 
-        user = conn.execute(
-            "SELECT * FROM users WHERE username=? AND password=?",
-            (username, password)
-        ).fetchone()
+            cursor.execute(
+                "SELECT * FROM users WHERE username=? AND password=?",
+                (username, password)
+            )
 
-        if user:
-            session['user'] = user['username']
-            session['role'] = user['role']
-            return redirect('/')
-        else:
-            return "Invalid credentials"
+            user = cursor.fetchone()
+            conn.close()
 
-    return render_template('login.html')
+            if user:
+                session["user"] = username
+                return redirect("/dashboard")
+            else:
+                return "Invalid Login"
+
+        return render_template("login.html")
+
+    except Exception as e:
+        return f"Login Error: {str(e)}"
 
 
 @app.route('/logout')
