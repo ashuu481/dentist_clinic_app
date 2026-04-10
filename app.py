@@ -5,7 +5,7 @@ import os
 from datetime import date
 from reportlab.platypus import SimpleDocTemplate, Paragraph
 from reportlab.lib.styles import getSampleStyleSheet
-
+from flask import Flask, render_template, request, redirect, session, url_for
 
 app = Flask(__name__)
 app.secret_key = "secret123"
@@ -39,7 +39,8 @@ def init_db():
 
     conn.commit()
     conn.close()
-
+    cursor.execute("INSERT INTO users (username, password) VALUES ('admin', 'admin')")
+    conn.commit()
 
 # ✅ CALL HERE
 init_db()
@@ -79,14 +80,14 @@ def login():
 @app.route('/logout')
 def logout():
     session.clear()
-    return redirect('/login')
+    return redirect(url_for("login"))
 
 
 # ---------------- DASHBOARD ----------------
 @app.route('/')
 def dashboard():
     if 'user' not in session:
-        return redirect('/login')
+        return redirect(url_for("login"))
 
     conn = get_db()
 
