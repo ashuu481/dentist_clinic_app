@@ -1,38 +1,70 @@
-{% extends 'layout.html' %}
+{% extends "layout.html" %}
 
 {% block content %}
 
-<h2>Add Treatment</h2>
+<h2>Treatment</h2>
 
-<form method="POST">
-    <input name="treatment" placeholder="Treatment (RCT, Cleaning)" required>
-    <input name="description" placeholder="Description">
-    
-    <input type="date" name="date" required>
-    <input type="date" name="next_visit">
-    
-    <input name="cost" placeholder="Cost">
-    
-    <button type="submit">Save</button>
+<div class="card p-3 mb-3 shadow">
+
+<form method="POST" class="row g-2">
+
+    <div class="col-md-3">
+        <input class="form-control" name="treatment" placeholder="Treatment" required>
+    </div>
+
+    <div class="col-md-3">
+        <input class="form-control" name="description" placeholder="Description">
+    </div>
+
+    <div class="col-md-2">
+        <input class="form-control" name="date" type="date" required>
+    </div>
+
+    <div class="col-md-2">
+        <input class="form-control" name="next_visit" type="date">
+    </div>
+
+    <div class="col-md-2">
+        <input class="form-control" name="cost" placeholder="Cost">
+    </div>
+
+    <div class="col-12 mt-2">
+        <button class="btn btn-success">Add Treatment</button>
+    </div>
+
 </form>
 
-<h2>Treatment History</h2>
+</div>
 
-<table>
+<!-- HISTORY -->
+<div class="card p-3 shadow">
+
+<h5>History</h5>
+
+<table class="table table-bordered">
+
 <tr>
     <th>Treatment</th>
+    <th>Description</th>
     <th>Date</th>
     <th>Next Visit</th>
+    <th>Cost</th>
 </tr>
 
 {% for t in treatments %}
 <tr>
     <td>{{ t.treatment }}</td>
+    <td>{{ t.description }}</td>
     <td>{{ t.date }}</td>
     <td>{{ t.next_visit }}</td>
+    <td>₹{{ t.cost }}</td>
 </tr>
 {% endfor %}
 
 </table>
+
+<a href="/report/{{ patient_id }}" class="btn btn-primary">Download Report</a>
+
+</div>
 
 {% endblock %}

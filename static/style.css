@@ -1,127 +1,26 @@
 body {
-    margin: 0;
-    font-family: 'Poppins', sans-serif;
-    background: #eef2f7;
+    background: #f5f7fb;
+    font-family: Arial;
 }
 
-/* Sidebar */
-.dark {
-    background: #1e272e;
-    color: white;
-}
-
-.dark .card {
-    background: #2f3640;
-    color: white;
-}
-
-.dark table {
-    background: #2f3640;
-    color: white;
-}
-
-.dark form {
-    background: #2f3640;
-}
 .sidebar {
-    width: 230px;
-    height: 100vh;
-    background: linear-gradient(180deg, #1e272e, #2f3640);
+    width: 220px;
+    min-height: 100vh;
+    background: #0f172a;
     color: white;
-    position: fixed;
-    padding: 20px;
-}
-
-.sidebar h2 {
-    margin-bottom: 30px;
 }
 
 .sidebar a {
     display: block;
-    padding: 12px;
-    margin: 8px 0;
+    padding: 10px;
+    color: white;
     text-decoration: none;
-    color: #dcdde1;
-    border-radius: 8px;
-    transition: 0.3s;
 }
 
 .sidebar a:hover {
-    background: #40739e;
-    color: white;
+    background: #1e293b;
 }
 
-/* Main */
-.main {
-    margin-left: 250px;
-    padding: 25px;
-}
-
-/* Cards */
 .card {
-    background: white;
-    padding: 20px;
     border-radius: 12px;
-    box-shadow: 0px 4px 10px rgba(0,0,0,0.08);
-    margin-bottom: 15px;
-}
-
-/* Form */
-form {
-    background: white;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0px 4px 10px rgba(0,0,0,0.05);
-}
-
-form input, form select {
-    width: 100%;
-    padding: 12px;
-    margin: 10px 0;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-}
-
-button {
-    padding: 12px;
-    background: linear-gradient(90deg, #40739e, #273c75);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    width: 100%;
-    font-weight: bold;
-}
-
-/* Table */
-table {
-    width: 100%;
-    margin-top: 20px;
-    border-collapse: collapse;
-    background: white;
-    border-radius: 12px;
-    overflow: hidden;
-}
-
-th {
-    background: #40739e;
-    color: white;
-}
-
-th, td {
-    padding: 12px;
-}
-
-/* Mobile */
-@media (max-width: 768px) {
-    .sidebar {
-        width: 100%;
-        height: auto;
-        position: relative;
-        display: flex;
-        justify-content: space-around;
-    }
-
-    .main {
-        margin-left: 0;
-    }
 }

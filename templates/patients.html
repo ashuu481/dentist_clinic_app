@@ -1,46 +1,72 @@
-{% extends 'layout.html' %}
+{% extends "layout.html" %}
 
 {% block content %}
 
-<h2>Add Patient</h2>
+<h2 class="mb-3">Patients</h2>
 
-<form method="POST">
-    <input name="name" placeholder="Name" required>
-    <input name="mobile" placeholder="Mobile" required>
-    <input name="age" placeholder="Age">
-    
-    <select name="gender">
-        <option>Male</option>
-        <option>Female</option>
-    </select>
+<div class="card p-3 mb-4 shadow">
 
-    <input name="complaint" placeholder="Complaint">
-    
-    <button type="submit">Save</button>
-</form>
+    <form method="POST" class="row g-2">
 
-<h2>Patient List</h2>
+        <div class="col-md-3">
+            <input class="form-control" name="name" placeholder="Name" required>
+        </div>
 
-<table>
-<tr>
-    <th>Name</th>
-    <th>Mobile</th>
-    <th>Action</th>
-</tr>
+        <div class="col-md-2">
+            <input class="form-control" name="age" placeholder="Age" required>
+        </div>
 
-{% for p in patients %}
-<tr>
-    <td>{{ p.name }}</td>
-    <td>{{ p.mobile }}</td>
-    <td>
+        <div class="col-md-2">
+            <input class="form-control" name="gender" placeholder="Gender" required>
+        </div>
+
+        <div class="col-md-3">
+            <input class="form-control" name="mobile" placeholder="Mobile" required>
+        </div>
+
+        <div class="col-md-2">
+            <button class="btn btn-success w-100">Add</button>
+        </div>
+
+        <div class="col-12">
+            <input class="form-control mt-2" name="complaint" placeholder="Complaint">
+        </div>
+
+    </form>
+
+</div>
+
+<!-- TABLE -->
+<div class="card p-3 shadow">
+
+<table class="table table-striped">
+
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Age</th>
+        <th>Gender</th>
+        <th>Mobile</th>
+        <th>Complaint</th>
+        <th>Action</th>
+    </tr>
+
+    {% for p in patients %}
+    <tr>
+        <td>{{ p.id }}</td>
+        <td>{{ p.name }}</td>
+        <td>{{ p.age }}</td>
+        <td>{{ p.gender }}</td>
+        <td>{{ p.mobile }}</td>
+        <td>{{ p.complaint }}</td>
         <td>
-    <a href="/treatment/{{ p.id }}">Treatment</a> |
-    <a href="/report/{{ p.id }}">Invoice</a>
-</td>
-    </td>
-     
-</tr>
-{% endfor %}
+            <a class="btn btn-sm btn-primary" href="/treatment/{{ p.id }}">Treat</a>
+        </td>
+    </tr>
+    {% endfor %}
+
 </table>
+
+</div>
 
 {% endblock %}

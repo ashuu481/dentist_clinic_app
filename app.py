@@ -1,300 +1,51 @@
-
-from flask import Flask, render_template, request, session, redirect, send_file
-import sqlite3
-import os
-from datetime import date
-from reportlab.platypus import SimpleDocTemplate, Paragraph
-from reportlab.lib.styles import getSampleStyleSheet
-from flask import Flask, render_template, request, redirect, session, url_for
-
-app = Flask(__name__)
-app.secret_key = "secret123"
-
-# IMPORTANT for Render
-app.config["DEBUG"] = False
-
-import os
-import sqlite3
-from flask import Flask
-
-app = Flask(__name__)
-app.secret_key = "secret123"
-
-# ✅ DB PATH (just a variable, NOT a file)
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-db_path = os.path.join(BASE_DIR, "database.db")
-
-
-def get_db():
-    conn = sqlite3.connect(db_path, check_same_thread=False)
-    conn.row_factory = sqlite3.Row
-    return conn
-
-
-def init_db():
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
-
-    cursor.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, username TEXT, password TEXT, role TEXT)")
-
-    conn.commit()
-    conn.close()
-    cursor.execute("INSERT INTO users (username, password) VALUES ('admin', 'admin')")
-    conn.commit()
-
-# ✅ CALL HERE
-init_db()
-# ---------------- LOGIN ----------------
-from flask import render_template, request, redirect, session
-
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    try:
-        if request.method == "POST":
-            username = request.form.get("username")
-            password = request.form.get("password")
-
-            conn = get_db()
-            cursor = conn.cursor()
-
-            cursor.execute(
-                "SELECT * FROM users WHERE username=? AND password=?",
-                (username, password)
-            )
-
-            user = cursor.fetchone()
-            conn.close()
-
-            if user:
-                session["user"] = username
-                return redirect("/dashboard")
-            else:
-                return "Invalid Login"
-
-        return render_template("login.html")
-
-    except Exception as e:
-        return f"Login Error: {str(e)}"
-
-
-@app.route('/logout')
-def logout():
-    session.clear()
-    return redirect(url_for("login"))
-
-
-# ---------------- DASHBOARD ----------------
-@app.route('/')
-def dashboard():
-    if 'user' not in session:
-        return redirect(url_for("login"))
-
-    conn = get_db()
-
-    total_patients = conn.execute("SELECT COUNT(*) FROM patients").fetchone()[0]
-    total_treatments = conn.execute("SELECT COUNT(*) FROM treatments").fetchone()[0]
-
-    return render_template(
-        'dashboard.html',
-        total_patients=total_patients,
-        total_treatments=total_treatments
-    )
-
-
-# ---------------- PATIENTS ----------------
-@app.route('/patients', methods=['GET', 'POST'])
-def patients():
-    if 'user' not in session:
-        return redirect('/login')
-
-    conn = get_db()
-
-    if request.method == 'POST':
-        name = request.form['name']
-        mobile = request.form['mobile']
-        age = request.form['age']
-        gender = request.form['gender']
-        complaint = request.form['complaint']
-
-        conn.execute("""
-            INSERT INTO patients (name, mobile, age, gender, complaint)
-            VALUES (?, ?, ?, ?, ?)
-        """, (name, mobile, age, gender, complaint))
-        conn.commit()
-
-    patients = conn.execute("SELECT * FROM patients").fetchall()
-
-    return render_template('patients.html', patients=patients)
-
-
-# ---------------- TREATMENT ----------------
-@app.route('/treatment/<int:patient_id>', methods=['GET', 'POST'])
-def treatment(patient_id):
-    if 'user' not in session:
-        return redirect('/login')
-
-    conn = get_db()
-
-    if request.method == 'POST':
-        treatment = request.form['treatment']
-        description = request.form['description']
-        t_date = request.form['date']
-        next_visit = request.form['next_visit']
-        cost = request.form['cost']
-
-        conn.execute("""
-            INSERT INTO treatments (patient_id, treatment, description, date, next_visit, cost)
-            VALUES (?, ?, ?, ?, ?, ?)
-        """, (patient_id, treatment, description, t_date, next_visit, cost))
-        conn.commit()
-
-    treatments = conn.execute(
-        "SELECT * FROM treatments WHERE patient_id=?",
-        (patient_id,)
-    ).fetchall()
-
-    return render_template(
-        'treatment.html',
-        treatments=treatments,
-        patient_id=patient_id
-    )
-
-
-# ---------------- REPORT (PDF) ----------------
-@app.route('/report/<int:patient_id>')
-def report(patient_id):
-    if 'user' not in session:
-        return redirect('/login')
-
-    conn = get_db()
-
-    patient = conn.execute(
-        "SELECT * FROM patients WHERE id=?",
-        (patient_id,)
-    ).fetchone()
-
-    treatments = conn.execute(
-        "SELECT * FROM treatments WHERE patient_id=?",
-        (patient_id,)
-    ).fetchall()
-
-    file_name = f"report_{patient_id}.pdf"
-    doc = SimpleDocTemplate(file_name)
-    styles = getSampleStyleSheet()
-
-    content = []
-
-    content.append(Paragraph("🦷 Dental Clinic Report", styles['Title']))
-    content.append(Paragraph("Invoice / Treatment Summary", styles['Heading2']))
-    content.append(Paragraph(" ", styles['Normal']))
-
-    content.append(Paragraph(f"Patient: {patient['name']}", styles['Normal']))
-    content.append(Paragraph(f"Mobile: {patient['mobile']}", styles['Normal']))
-    content.append(Paragraph(" ", styles['Normal']))
-
-    total_cost = 0
-
-    for t in treatments:
-        cost = float(t['cost']) if t['cost'] else 0
-        total_cost += cost
-
-        content.append(Paragraph(f"Treatment: {t['treatment']}", styles['Normal']))
-        content.append(Paragraph(f"Date: {t['date']}", styles['Normal']))
-        content.append(Paragraph(f"Cost: ₹{cost}", styles['Normal']))
-        content.append(Paragraph(" ", styles['Normal']))
-
-    content.append(Paragraph(f"Total Cost: ₹{total_cost}", styles['Title']))
-
-    doc.build(content)
-
-    return send_file(file_name, as_attachment=True)
-
-
-# ---------------- REMINDERS ----------------
-@app.route('/reminders')
-def reminders():
-    if 'user' not in session:
-        return redirect('/login')
-
-    conn = get_db()
-    today = date.today().isoformat()
-
-    patients = conn.execute("""
-        SELECT patients.name, patients.mobile, treatments.next_visit
-        FROM treatments
-        JOIN patients ON patients.id = treatments.patient_id
-        WHERE next_visit IS NOT NULL AND next_visit <= ?
-    """, (today,)).fetchall()
-
-    return render_template('reminders.html', patients=patients)
-
-
-# ---------------- RUN ----------------
-if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
-
-from flask import Flask, render_template, request, session, redirect, send_file
-import sqlite3
-import os
-from datetime import date
-from reportlab.platypus import SimpleDocTemplate, Paragraph
-from reportlab.lib.styles import getSampleStyleSheet
-
-app = Flask(__name__)
-app.secret_key = "secret123"
-
-# IMPORTANT for Render
-app.config["DEBUG"] = False
-
-import os
-import sqlite3
-from flask import Flask
-
-app = Flask(__name__)
-app.secret_key = "secret123"
-
-# ✅ DB PATH (just a variable, NOT a file)
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-db_path = os.path.join(BASE_DIR, "database.db")
-
-
-from flask import Flask, render_template, request, redirect, session
+from flask import Flask, render_template, request, redirect, session, send_file
 import sqlite3, os
+from datetime import date
+from reportlab.platypus import SimpleDocTemplate, Paragraph
+from reportlab.lib.styles import getSampleStyleSheet
 
 app = Flask(__name__)
-app.secret_key = "secret123"   # required for session
+app.secret_key = "clinic_secret"
 
-# ✅ DATABASE CONNECTION
+DB = "database.db"
+
+# ---------- DB ----------
 def get_db():
-    db_path = os.path.join(os.getcwd(), "database.db")
-    conn = sqlite3.connect(db_path)
+    conn = sqlite3.connect(DB)
     conn.row_factory = sqlite3.Row
     return conn
 
-# ✅ LOGIN ROUTE (FINAL)
-@app.route("/login", methods=["GET", "POST"])
+# ---------- HOME ----------
+@app.route("/")
+def home():
+    return redirect("/login")
+
+# ---------- LOGIN ----------
+@app.route("/login", methods=["GET","POST"])
 def login():
     if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
+        u = request.form["username"]
+        p = request.form["password"]
 
         conn = get_db()
-        user = conn.execute(
-            "SELECT * FROM users WHERE username=? AND password=?",
-            (username, password)
-        ).fetchone()
+        user = conn.execute("SELECT * FROM users WHERE username=? AND password=?", (u,p)).fetchone()
+        conn.close()
 
         if user:
-            session["user"] = username
+            session["user"] = u
             return redirect("/dashboard")
-        else:
-            return "Invalid Username or Password"
+
+        return "Invalid Login"
 
     return render_template("login.html")
 
+# ---------- LOGOUT ----------
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/login")
 
-# ✅ DASHBOARD
+# ---------- DASHBOARD ----------
 @app.route("/dashboard")
 def dashboard():
     if "user" not in session:
@@ -302,161 +53,123 @@ def dashboard():
 
     conn = get_db()
 
-    total_patients = conn.execute("SELECT COUNT(*) FROM patients").fetchone()[0]
-    total_treatments = conn.execute("SELECT COUNT(*) FROM treatments").fetchone()[0]
+    patients = conn.execute("SELECT COUNT(*) FROM patients").fetchone()[0]
+    treatments = conn.execute("SELECT COUNT(*) FROM treatments").fetchone()[0]
 
-    return render_template(
-        "dashboard.html",
-        total_patients=total_patients,
-        total_treatments=total_treatments
-    )
+    conn.close()
 
+    return render_template("dashboard.html",
+                           total_patients=patients,
+                           total_treatments=treatments)
 
-# ✅ LOGOUT
-@app.route("/logout")
-def logout():
-    session.clear()
-    return redirect("/login")
-
-
-# ✅ HOME REDIRECT
-@app.route("/")
-def home():
-    return redirect("/login")
-
-
-if __name__ == "__main__":
-    app.run(debug=True)
-
-# ---------------- PATIENTS ----------------
-@app.route('/patients', methods=['GET', 'POST'])
+# ---------- PATIENTS ----------
+@app.route("/patients", methods=["GET","POST"])
 def patients():
-    if 'user' not in session:
-        return redirect('/login')
+    if "user" not in session:
+        return redirect("/login")
 
     conn = get_db()
 
-    if request.method == 'POST':
-        name = request.form['name']
-        mobile = request.form['mobile']
-        age = request.form['age']
-        gender = request.form['gender']
-        complaint = request.form['complaint']
-
+    if request.method == "POST":
         conn.execute("""
-            INSERT INTO patients (name, mobile, age, gender, complaint)
-            VALUES (?, ?, ?, ?, ?)
-        """, (name, mobile, age, gender, complaint))
+        INSERT INTO patients(name,age,gender,mobile,complaint)
+        VALUES (?,?,?,?,?)
+        """, (
+            request.form["name"],
+            request.form["age"],
+            request.form["gender"],
+            request.form["mobile"],
+            request.form["complaint"]
+        ))
         conn.commit()
 
-    patients = conn.execute("SELECT * FROM patients").fetchall()
+    data = conn.execute("SELECT * FROM patients").fetchall()
+    conn.close()
 
-    return render_template('patients.html', patients=patients)
+    return render_template("patients.html", patients=data)
 
-
-# ---------------- TREATMENT ----------------
-@app.route('/treatment/<int:patient_id>', methods=['GET', 'POST'])
-def treatment(patient_id):
-    if 'user' not in session:
-        return redirect('/login')
+# ---------- TREATMENT ----------
+@app.route("/treatment/<int:id>", methods=["GET","POST"])
+def treatment(id):
+    if "user" not in session:
+        return redirect("/login")
 
     conn = get_db()
 
-    if request.method == 'POST':
-        treatment = request.form['treatment']
-        description = request.form['description']
-        t_date = request.form['date']
-        next_visit = request.form['next_visit']
-        cost = request.form['cost']
-
+    if request.method == "POST":
         conn.execute("""
-            INSERT INTO treatments (patient_id, treatment, description, date, next_visit, cost)
-            VALUES (?, ?, ?, ?, ?, ?)
-        """, (patient_id, treatment, description, t_date, next_visit, cost))
+        INSERT INTO treatments(patient_id,treatment,description,date,next_visit,cost)
+        VALUES (?,?,?,?,?,?)
+        """, (
+            id,
+            request.form["treatment"],
+            request.form["description"],
+            request.form["date"],
+            request.form["next_visit"],
+            request.form["cost"]
+        ))
         conn.commit()
 
-    treatments = conn.execute(
-        "SELECT * FROM treatments WHERE patient_id=?",
-        (patient_id,)
-    ).fetchall()
+    data = conn.execute("SELECT * FROM treatments WHERE patient_id=?", (id,)).fetchall()
+    conn.close()
 
-    return render_template(
-        'treatment.html',
-        treatments=treatments,
-        patient_id=patient_id
-    )
+    return render_template("treatment.html", treatments=data, patient_id=id)
 
-
-# ---------------- REPORT (PDF) ----------------
-@app.route('/report/<int:patient_id>')
-def report(patient_id):
-    if 'user' not in session:
-        return redirect('/login')
+# ---------- REPORT ----------
+@app.route("/report/<int:id>")
+def report(id):
+    if "user" not in session:
+        return redirect("/login")
 
     conn = get_db()
 
-    patient = conn.execute(
-        "SELECT * FROM patients WHERE id=?",
-        (patient_id,)
-    ).fetchone()
+    patient = conn.execute("SELECT * FROM patients WHERE id=?", (id,)).fetchone()
+    treatments = conn.execute("SELECT * FROM treatments WHERE patient_id=?", (id,)).fetchall()
 
-    treatments = conn.execute(
-        "SELECT * FROM treatments WHERE patient_id=?",
-        (patient_id,)
-    ).fetchall()
+    conn.close()
 
-    file_name = f"report_{patient_id}.pdf"
-    doc = SimpleDocTemplate(file_name)
+    file = f"report_{id}.pdf"
+    doc = SimpleDocTemplate(file)
     styles = getSampleStyleSheet()
 
     content = []
+    content.append(Paragraph("Clinic Report", styles["Title"]))
+    content.append(Paragraph(f"Patient: {patient['name']}", styles["Normal"]))
 
-    content.append(Paragraph("🦷 Dental Clinic Report", styles['Title']))
-    content.append(Paragraph("Invoice / Treatment Summary", styles['Heading2']))
-    content.append(Paragraph(" ", styles['Normal']))
-
-    content.append(Paragraph(f"Patient: {patient['name']}", styles['Normal']))
-    content.append(Paragraph(f"Mobile: {patient['mobile']}", styles['Normal']))
-    content.append(Paragraph(" ", styles['Normal']))
-
-    total_cost = 0
+    total = 0
 
     for t in treatments:
-        cost = float(t['cost']) if t['cost'] else 0
-        total_cost += cost
+        cost = float(t["cost"] or 0)
+        total += cost
+        content.append(Paragraph(f"{t['treatment']} - ₹{cost}", styles["Normal"]))
 
-        content.append(Paragraph(f"Treatment: {t['treatment']}", styles['Normal']))
-        content.append(Paragraph(f"Date: {t['date']}", styles['Normal']))
-        content.append(Paragraph(f"Cost: ₹{cost}", styles['Normal']))
-        content.append(Paragraph(" ", styles['Normal']))
-
-    content.append(Paragraph(f"Total Cost: ₹{total_cost}", styles['Title']))
+    content.append(Paragraph(f"TOTAL: ₹{total}", styles["Title"]))
 
     doc.build(content)
 
-    return send_file(file_name, as_attachment=True)
+    return send_file(file, as_attachment=True)
 
-
-# ---------------- REMINDERS ----------------
-@app.route('/reminders')
+# ---------- REMINDERS ----------
+@app.route("/reminders")
 def reminders():
-    if 'user' not in session:
-        return redirect('/login')
+    if "user" not in session:
+        return redirect("/login")
 
     conn = get_db()
     today = date.today().isoformat()
 
-    patients = conn.execute("""
-        SELECT patients.name, patients.mobile, treatments.next_visit
-        FROM treatments
-        JOIN patients ON patients.id = treatments.patient_id
-        WHERE next_visit IS NOT NULL AND next_visit <= ?
+    data = conn.execute("""
+    SELECT patients.name, patients.mobile, treatments.next_visit
+    FROM treatments
+    JOIN patients ON patients.id = treatments.patient_id
+    WHERE next_visit <= ?
     """, (today,)).fetchall()
 
-    return render_template('reminders.html', patients=patients)
+    conn.close()
 
+    return render_template("reminders.html", patients=data)
 
-# ---------------- RUN ----------------
-if __name__ == '__main__':
+# ---------- RUN ----------
+if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host="0.0.0.0", port=port, debug=False)

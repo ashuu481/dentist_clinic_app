@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 import sqlite3
 
 conn = sqlite3.connect('database.db')
@@ -20,7 +20,7 @@ conn.execute("INSERT INTO users (username, password, role) VALUES ('reception', 
 conn.commit()
 conn.close()
 
-=======
+
 import sqlite3
 
 conn = sqlite3.connect('database.db')
@@ -42,5 +42,5 @@ conn.execute("INSERT INTO users (username, password, role) VALUES ('reception', 
 conn.commit()
 conn.close()
 
->>>>>>> bfcd717e0d42a8372cf9a6604f24cb84bd0751c4
+
 print("Users table created and data inserted!")

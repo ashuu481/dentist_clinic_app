@@ -1,68 +1,53 @@
-<<<<<<< HEAD
 import sqlite3
+import os
 
-conn = sqlite3.connect('database.db')
+DB_PATH = "database.db"
 
-# Patients table (already exists)
-conn.execute("""
-CREATE TABLE IF NOT EXISTS patients (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT,
-    mobile TEXT,
-    age TEXT,
-    gender TEXT,
-    complaint TEXT
-)
-""")
+def init():
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
 
-# NEW: Treatments table
-conn.execute("""
-CREATE TABLE IF NOT EXISTS treatments (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    patient_id INTEGER,
-    treatment TEXT,
-    description TEXT,
-    date TEXT,
-    next_visit TEXT,
-    cost REAL
-)
-""")
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE,
+        password TEXT,
+        role TEXT
+    )
+    """)
 
-conn.commit()
-conn.close()
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS patients (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT,
+        age TEXT,
+        gender TEXT,
+        mobile TEXT,
+        complaint TEXT
+    )
+    """)
 
-=======
-import sqlite3
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS treatments (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        patient_id INTEGER,
+        treatment TEXT,
+        description TEXT,
+        date TEXT,
+        next_visit TEXT,
+        cost REAL
+    )
+    """)
 
-conn = sqlite3.connect('database.db')
+    # default admin
+    c.execute("SELECT * FROM users WHERE username='admin'")
+    if not c.fetchone():
+        c.execute("INSERT INTO users(username,password,role) VALUES (?,?,?)",
+                  ("admin", "admin", "doctor"))
 
-# Patients table (already exists)
-conn.execute("""
-CREATE TABLE IF NOT EXISTS patients (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT,
-    mobile TEXT,
-    age TEXT,
-    gender TEXT,
-    complaint TEXT
-)
-""")
+    conn.commit()
+    conn.close()
+    print("DB Ready")
 
-# NEW: Treatments table
-conn.execute("""
-CREATE TABLE IF NOT EXISTS treatments (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    patient_id INTEGER,
-    treatment TEXT,
-    description TEXT,
-    date TEXT,
-    next_visit TEXT,
-    cost REAL
-)
-""")
-
-conn.commit()
-conn.close()
-
->>>>>>> bfcd717e0d42a8372cf9a6604f24cb84bd0751c4
-print("Database updated!")
+if __name__ == "__main__":
+    init()

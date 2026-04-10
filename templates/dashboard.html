@@ -1,13 +1,25 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Dashboard</title>
-</head>
-<body>
+{% extends "layout.html" %}
 
-<h2>Welcome to Dashboard</h2>
+{% block content %}
 
-<a href="/logout">Logout</a>
+<h2 class="mb-4">Dashboard</h2>
 
-</body>
-</html>
+<div class="row">
+
+    <div class="col-md-6">
+        <div class="card shadow p-3">
+            <h5>Total Patients</h5>
+            <h2>{{ total_patients }}</h2>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card shadow p-3">
+            <h5>Total Treatments</h5>
+            <h2>{{ total_treatments }}</h2>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
