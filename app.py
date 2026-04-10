@@ -281,6 +281,7 @@ init_db()
 # ---------------- LOGIN ----------------
 from flask import render_template, request, redirect, session
 
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     try:
@@ -295,21 +296,20 @@ def login():
                 "SELECT * FROM users WHERE username=? AND password=?",
                 (username, password)
             )
-
             user = cursor.fetchone()
             conn.close()
 
             if user:
-                session["user"] = username
-                return redirect("/dashboard")
+                session['user'] = username
+                return "Login Success"  # ✅ correct
             else:
-                return "Invalid Login"
+                return "Invalid login"
 
         return render_template("login.html")
 
     except Exception as e:
         return f"Login Error: {str(e)}"
-
+    
 @app.route("/logout")
 def logout():
     session.clear()
@@ -317,8 +317,9 @@ def logout():
 
 
 # ---------------- DASHBOARD ----------------
-@app.route('/')
+@app.route("/dashboard")
 def dashboard():
+    
     if 'user' not in session:
         return redirect('/login')
 
@@ -328,7 +329,7 @@ def dashboard():
     total_treatments = conn.execute("SELECT COUNT(*) FROM treatments").fetchone()[0]
 
     return render_template(
-        'dashboard.html',
+        "dashboard.html",
         total_patients=total_patients,
         total_treatments=total_treatments
     )
