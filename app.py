@@ -4,14 +4,48 @@ from datetime import date
 from reportlab.platypus import SimpleDocTemplate, Paragraph
 from reportlab.lib.styles import getSampleStyleSheet
 
-app = Flask(__name__)
-app.secret_key = "clinic_secret"
+import sqlite3
 
-DB = "database.db"
+DB_NAME = "database.db"
+
+def get_db():
+    conn = sqlite3.connect(DB_NAME)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+from flask import Flask
+
+app = Flask(__name__)
+
+DB_NAME = "database.db"
+
+# 1. DATABASE CONNECTION
+def get_db():
+    conn = sqlite3.connect(DB_NAME)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+# 2. INIT DB FUNCTION
+def init_db():
+    conn = get_db()
+    c = conn.cursor()
+
+    c.execute("""CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT,
+        password TEXT,
+        role TEXT
+    )""")
+
+    conn.commit()
+    conn.close()
+
+# 3. CALL INIT ONLY AFTER DEFINING
+init_db()
 
 # ---------- DB ----------
 def get_db():
-    conn = sqlite3.connect(DB)
+    conn = sqlite3.connect(DB_NAME)
     conn.row_factory = sqlite3.Row
     return conn
 
