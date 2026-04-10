@@ -301,7 +301,7 @@ def login():
 
             if user:
                 session['user'] = username
-                return "Login Success"  # ✅ correct
+                return redirect("/dashboard")
             else:
                 return "Invalid login"
 
@@ -315,7 +315,9 @@ def logout():
     session.clear()
     return redirect("/login")
 
-
+@app.route("/test")
+def test():
+    return "Test OK"
 # ---------------- DASHBOARD ----------------
 @app.route("/dashboard")
 def dashboard():
