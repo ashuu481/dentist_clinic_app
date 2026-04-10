@@ -2,24 +2,45 @@
 
 {% block content %}
 
-<h2 class="mb-4">Dashboard</h2>
+<h3>Dashboard</h3>
 
 <div class="row">
 
-    <div class="col-md-6">
-        <div class="card shadow p-3">
-            <h5>Total Patients</h5>
-            <h2>{{ total_patients }}</h2>
+    <div class="col-md-3">
+        <div class="card p-3 bg-primary text-white">
+            <h5>Patients</h5>
+            <h2>120</h2>
         </div>
     </div>
 
-    <div class="col-md-6">
-        <div class="card shadow p-3">
-            <h5>Total Treatments</h5>
-            <h2>{{ total_treatments }}</h2>
+    <div class="col-md-3">
+        <div class="card p-3 bg-success text-white">
+            <h5>Treatments</h5>
+            <h2>45</h2>
         </div>
     </div>
 
+    <div class="col-md-3">
+        <div class="card p-3 bg-warning text-dark">
+            <h5>Reminders</h5>
+            <h2>18</h2>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card p-3 bg-dark text-white">
+            <h5>Doctors</h5>
+            <h2>3</h2>
+        </div>
+    </div>
+
+</div>
+
+<br>
+
+<div class="card p-3">
+    <h5>System Status</h5>
+    <p>All services running smoothly 🚀</p>
 </div>
 
 {% endblock %}

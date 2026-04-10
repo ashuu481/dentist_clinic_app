@@ -2,27 +2,16 @@
 
 {% block content %}
 
-<h2>Reminders</h2>
+<h3>Reminders</h3>
 
-<div class="card p-3 shadow">
+<div class="card p-3">
 
-<table class="table">
+<ul class="list-group">
 
-<tr>
-    <th>Name</th>
-    <th>Mobile</th>
-    <th>Next Visit</th>
-</tr>
+    <li class="list-group-item">📅 Follow-up - Patient A</li>
+    <li class="list-group-item">📅 Checkup - Patient B</li>
 
-{% for p in patients %}
-<tr>
-    <td>{{ p.name }}</td>
-    <td>{{ p.mobile }}</td>
-    <td>{{ p.next_visit }}</td>
-</tr>
-{% endfor %}
-
-</table>
+</ul>
 
 </div>
 

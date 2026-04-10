@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h3>Appointments</h3>
+
+<div class="card p-3 mb-3">
+<form method="POST" class="row g-2">
+
+<input name="patient" class="form-control col" placeholder="Patient">
+<input name="doctor" class="form-control col" placeholder="Doctor">
+<input type="date" name="date" class="form-control col">
+<input type="time" name="time" class="form-control col">
+
+<button class="btn btn-success col">Add</button>
+
+</form>
+</div>
+
+<table class="table table-hover">
+<tr><th>Patient</th><th>Doctor</th><th>Date</th><th>Time</th></tr>
+
+{% for a in appts %}
+<tr>
+<td>{{a.patient_name}}</td>
+<td>{{a.doctor_name}}</td>
+<td>{{a.date}}</td>
+<td>{{a.time}}</td>
+</tr>
+{% endfor %}
+
+</table>
+
+{% endblock %}

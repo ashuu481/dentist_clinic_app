@@ -2,68 +2,17 @@
 
 {% block content %}
 
-<h2>Treatment</h2>
+<h3>Treatments</h3>
 
-<div class="card p-3 mb-3 shadow">
+<div class="card p-3">
 
-<form method="POST" class="row g-2">
+<ul class="list-group">
 
-    <div class="col-md-3">
-        <input class="form-control" name="treatment" placeholder="Treatment" required>
-    </div>
+    <li class="list-group-item">🦷 Root Canal - Patient A</li>
+    <li class="list-group-item">🪥 Cleaning - Patient B</li>
+    <li class="list-group-item">💊 Medicine - Patient C</li>
 
-    <div class="col-md-3">
-        <input class="form-control" name="description" placeholder="Description">
-    </div>
-
-    <div class="col-md-2">
-        <input class="form-control" name="date" type="date" required>
-    </div>
-
-    <div class="col-md-2">
-        <input class="form-control" name="next_visit" type="date">
-    </div>
-
-    <div class="col-md-2">
-        <input class="form-control" name="cost" placeholder="Cost">
-    </div>
-
-    <div class="col-12 mt-2">
-        <button class="btn btn-success">Add Treatment</button>
-    </div>
-
-</form>
-
-</div>
-
-<!-- HISTORY -->
-<div class="card p-3 shadow">
-
-<h5>History</h5>
-
-<table class="table table-bordered">
-
-<tr>
-    <th>Treatment</th>
-    <th>Description</th>
-    <th>Date</th>
-    <th>Next Visit</th>
-    <th>Cost</th>
-</tr>
-
-{% for t in treatments %}
-<tr>
-    <td>{{ t.treatment }}</td>
-    <td>{{ t.description }}</td>
-    <td>{{ t.date }}</td>
-    <td>{{ t.next_visit }}</td>
-    <td>₹{{ t.cost }}</td>
-</tr>
-{% endfor %}
-
-</table>
-
-<a href="/report/{{ patient_id }}" class="btn btn-primary">Download Report</a>
+</ul>
 
 </div>
 

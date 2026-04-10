@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h3>Billing System</h3>
+
+<div class="card p-3 mb-3">
+
+<form method="POST" class="row g-2">
+
+<input name="patient" class="form-control col" placeholder="Patient">
+<input name="amount" class="form-control col" placeholder="Amount">
+<input name="desc" class="form-control col" placeholder="Description">
+<input type="date" name="date" class="form-control col">
+
+<button class="btn btn-primary col">Generate Bill</button>
+
+</form>
+
+</div>
+
+<table class="table table-striped">
+<tr><th>Patient</th><th>Amount</th><th>Description</th><th>Date</th></tr>
+
+{% for b in bills %}
+<tr>
+<td>{{b.patient_name}}</td>
+<td>₹{{b.amount}}</td>
+<td>{{b.description}}</td>
+<td>{{b.date}}</td>
+</tr>
+{% endfor %}
+
+</table>
+
+{% endblock %}

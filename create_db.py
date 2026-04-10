@@ -2,6 +2,7 @@ import sqlite3
 
 DB_NAME = "database.db"
 
+
 def create_connection():
     conn = sqlite3.connect(DB_NAME)
     return conn
@@ -15,8 +16,8 @@ def create_tables():
     c.execute("""
     CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT UNIQUE NOT NULL,
-        password TEXT NOT NULL,
+        username TEXT UNIQUE,
+        password TEXT,
         role TEXT DEFAULT 'doctor'
     )
     """)
@@ -25,7 +26,7 @@ def create_tables():
     c.execute("""
     CREATE TABLE IF NOT EXISTS patients (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
+        name TEXT,
         age TEXT,
         gender TEXT,
         mobile TEXT,
@@ -49,20 +50,42 @@ def create_tables():
     )
     """)
 
+    # ---------------- APPOINTMENTS TABLE ----------------
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS appointments (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        patient_name TEXT,
+        doctor_name TEXT,
+        date TEXT,
+        time TEXT,
+        status TEXT DEFAULT 'pending'
+    )
+    """)
+
+    # ---------------- BILLS TABLE ----------------
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS bills (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        patient_name TEXT,
+        amount REAL,
+        description TEXT,
+        date TEXT
+    )
+    """)
+
     # ---------------- REMINDERS TABLE ----------------
     c.execute("""
     CREATE TABLE IF NOT EXISTS reminders (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        patient_id INTEGER,
+        patient_name TEXT,
         message TEXT,
-        reminder_date TEXT,
-        status TEXT DEFAULT 'pending',
-        FOREIGN KEY(patient_id) REFERENCES patients(id)
+        date TEXT,
+        status TEXT DEFAULT 'pending'
     )
     """)
 
-    # ---------------- DEFAULT ADMIN USER ----------------
-    c.execute("SELECT * FROM users WHERE username = ?", ("admin",))
+    # ---------------- DEFAULT ADMIN ----------------
+    c.execute("SELECT * FROM users WHERE username=?", ("admin",))
     admin = c.fetchone()
 
     if not admin:
@@ -73,6 +96,7 @@ def create_tables():
 
     conn.commit()
     conn.close()
+
     print("✅ Database created successfully!")
 
 
