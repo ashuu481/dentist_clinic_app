@@ -14,8 +14,11 @@ def get_db():
     return conn
 
 from flask import Flask
+from flask import Flask
 
 app = Flask(__name__)
+app.secret_key = "super_secret_key_123"
+
 
 DB_NAME = "database.db"
 
@@ -54,25 +57,27 @@ def get_db():
 def home():
     return redirect("/login")
 
-# ---------- LOGIN ----------
-@app.route("/login", methods=["GET","POST"])
+@app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        u = request.form["username"]
-        p = request.form["password"]
+        u = request.form.get("username")
+        p = request.form.get("password")
 
         conn = get_db()
-        user = conn.execute("SELECT * FROM users WHERE username=? AND password=?", (u,p)).fetchone()
+        user = conn.execute(
+            "SELECT * FROM users WHERE username=? AND password=?",
+            (u, p)
+        ).fetchone()
         conn.close()
 
         if user:
-            session["user"] = u
+            session["user"] = user["username"]
+            session["role"] = user["role"] if "role" in user.keys() else "doctor"
             return redirect("/dashboard")
 
-        return "Invalid Login"
+        return render_template("login.html", error="Invalid username or password")
 
     return render_template("login.html")
-
 # ---------- LOGOUT ----------
 @app.route("/logout")
 def logout():
