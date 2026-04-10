@@ -1,12 +1,13 @@
-{% extends 'layout.html' %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+</head>
+<body>
 
-{% block content %}
+<h2>Welcome to Dashboard</h2>
 
-<h1>Dashboard</h1>
+<a href="/logout">Logout</a>
 
-<div class="card">Total Patients: {{ total_patients }}</div>
-<div class="card">Total Treatments: {{ total_treatments }}</div>
-
-<a href="/patients"><button>Add Patient</button></a>
-
-{% endblock %}
+</body>
+</html>

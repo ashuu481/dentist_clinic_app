@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 from flask import Flask, render_template, request, session, redirect, send_file
 import sqlite3
 import os
@@ -232,7 +232,7 @@ def reminders():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
-=======
+
 from flask import Flask, render_template, request, session, redirect, send_file
 import sqlite3
 import os
@@ -310,11 +310,10 @@ def login():
     except Exception as e:
         return f"Login Error: {str(e)}"
 
-
-@app.route('/logout')
+@app.route("/logout")
 def logout():
     session.clear()
-    return redirect('/login')
+    return redirect("/login")
 
 
 # ---------------- DASHBOARD ----------------
@@ -467,4 +466,3 @@ def reminders():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
->>>>>>> bfcd717e0d42a8372cf9a6604f24cb84bd0751c4
