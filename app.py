@@ -258,72 +258,46 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 db_path = os.path.join(BASE_DIR, "database.db")
 
 
+from flask import Flask, render_template, request, redirect, session
+import sqlite3, os
+
+app = Flask(__name__)
+app.secret_key = "secret123"   # required for session
+
+# ✅ DATABASE CONNECTION
 def get_db():
-    conn = sqlite3.connect(db_path, check_same_thread=False)
+    db_path = os.path.join(os.getcwd(), "database.db")
+    conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     return conn
 
-
-def init_db():
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
-
-    cursor.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, username TEXT, password TEXT, role TEXT)")
-
-    conn.commit()
-    conn.close()
-
-
-# ✅ CALL HERE
-init_db()
-
-
-# ---------------- LOGIN ----------------
-from flask import render_template, request, redirect, session
-
-
+# ✅ LOGIN ROUTE (FINAL)
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    try:
-        if request.method == "POST":
-            username = request.form.get("username")
-            password = request.form.get("password")
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
 
-            conn = get_db()
-            cursor = conn.cursor()
+        conn = get_db()
+        user = conn.execute(
+            "SELECT * FROM users WHERE username=? AND password=?",
+            (username, password)
+        ).fetchone()
 
-            cursor.execute(
-                "SELECT * FROM users WHERE username=? AND password=?",
-                (username, password)
-            )
-            user = cursor.fetchone()
-            conn.close()
+        if user:
+            session["user"] = username
+            return redirect("/dashboard")
+        else:
+            return "Invalid Username or Password"
 
-            if user:
-                session['user'] = username
-                return redirect("/dashboard")
-            else:
-                return "Invalid login"
+    return render_template("login.html")
 
-        return render_template("login.html")
 
-    except Exception as e:
-        return f"Login Error: {str(e)}"
-    
-@app.route("/logout")
-def logout():
-    session.clear()
-    return redirect("/login")
-
-@app.route("/test")
-def test():
-    return "Test OK"
-# ---------------- DASHBOARD ----------------
+# ✅ DASHBOARD
 @app.route("/dashboard")
 def dashboard():
-    
-    if 'user' not in session:
-        return redirect('/login')
+    if "user" not in session:
+        return redirect("/login")
 
     conn = get_db()
 
@@ -336,6 +310,22 @@ def dashboard():
         total_treatments=total_treatments
     )
 
+
+# ✅ LOGOUT
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/login")
+
+
+# ✅ HOME REDIRECT
+@app.route("/")
+def home():
+    return redirect("/login")
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
 
 # ---------------- PATIENTS ----------------
 @app.route('/patients', methods=['GET', 'POST'])

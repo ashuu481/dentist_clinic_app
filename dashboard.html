@@ -1,12 +1,16 @@
-{% extends 'layout.html' %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+</head>
+<body>
 
-{% block content %}
+<h2>Welcome {{ session['user'] }}</h2>
 
-<h1>Dashboard</h1>
+<p>Total Patients: {{ total_patients }}</p>
+<p>Total Treatments: {{ total_treatments }}</p>
 
-<div class="card">Total Patients: {{ total_patients }}</div>
-<div class="card">Total Treatments: {{ total_treatments }}</div>
+<a href="/logout">Logout</a>
 
-<a href="/patients"><button>Add Patient</button></a>
-
-{% endblock %}
+</body>
+</html>
