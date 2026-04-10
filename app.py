@@ -5,6 +5,11 @@ from datetime import date
 from reportlab.platypus import SimpleDocTemplate, Paragraph
 from reportlab.lib.styles import getSampleStyleSheet
 
+
+def init_db():
+    # your code
+    pass
+
 app = Flask(__name__)
 app.secret_key = "secret123"
 
@@ -12,8 +17,8 @@ app.secret_key = "secret123"
 app.config["DEBUG"] = False
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-db_path = os.path.join(BASE_DIR, "database.db")
-
+db_path = "/tmp/database.db"
+init_db()
 
 # ---------------- DB ----------------
 def get_db():

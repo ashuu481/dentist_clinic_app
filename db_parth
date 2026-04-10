@@ -1,0 +1,46 @@
+def init_db():
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT,
+        password TEXT,
+        role TEXT
+    )
+    """)
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS patients (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT,
+        mobile TEXT,
+        age TEXT,
+        gender TEXT,
+        complaint TEXT
+    )
+    """)
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS treatments (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        patient_id INTEGER,
+        treatment TEXT,
+        description TEXT,
+        date TEXT,
+        next_visit TEXT,
+        cost REAL
+    )
+    """)
+
+    # default login user
+    cursor.execute("SELECT * FROM users WHERE username='admin'")
+    if not cursor.fetchone():
+        cursor.execute(
+            "INSERT INTO users (username, password, role) VALUES (?, ?, ?)",
+            ("admin", "admin", "admin")
+        )
+
+    conn.commit()
+    conn.close()
