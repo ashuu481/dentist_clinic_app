@@ -11,15 +11,36 @@ app.secret_key = "secret123"
 # IMPORTANT for Render
 app.config["DEBUG"] = False
 
+import os
+import sqlite3
+from flask import Flask
+
+app = Flask(__name__)
+app.secret_key = "secret123"
+
+# ✅ DB PATH (just a variable, NOT a file)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 db_path = os.path.join(BASE_DIR, "database.db")
 
 
-# ---------------- DB ----------------
 def get_db():
-    conn = sqlite3.connect(db_path)
+    conn = sqlite3.connect(db_path, check_same_thread=False)
     conn.row_factory = sqlite3.Row
     return conn
+
+
+def init_db():
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    cursor.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, username TEXT, password TEXT, role TEXT)")
+
+    conn.commit()
+    conn.close()
+
+
+# ✅ CALL HERE
+init_db()
 
 
 # ---------------- LOGIN ----------------
