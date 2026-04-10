@@ -4,12 +4,16 @@
 
 <h3>Patients Management</h3>
 
+<!-- 🔍 SEARCH -->
 <div class="card p-3 mb-3">
-<form class="mb-3">
+
+<form class="mb-3" method="GET">
     <input name="q" class="form-control" placeholder="Search patient...">
 </form>
+
+<!-- ➕ ADD PATIENT -->
 <form method="POST" class="row g-2">
-    
+
     <div class="col-md-3">
         <input name="name" class="form-control" placeholder="Name">
     </div>
@@ -34,15 +38,18 @@
 
 </div>
 
+<!-- 📋 TABLE -->
 <div class="card p-3">
 
 <table class="table table-hover">
+
     <tr>
         <th>ID</th>
         <th>Name</th>
         <th>Age</th>
         <th>Gender</th>
         <th>Mobile</th>
+        <th>Action</th>
     </tr>
 
     {% for p in patients %}
@@ -52,6 +59,12 @@
         <td>{{ p.age }}</td>
         <td>{{ p.gender }}</td>
         <td>{{ p.mobile }}</td>
+
+        <!-- ✅ THIS FIXES YOUR ERROR -->
+        <td>
+            <a href="/treatment/{{ p.id }}">Treatment</a>
+        </td>
+
     </tr>
     {% endfor %}
 

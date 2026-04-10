@@ -1,0 +1,85 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<div class="container">
+
+    <!-- 🧑 PATIENT INFO -->
+    <div class="card p-3 mb-3">
+        <h3>Patient Treatment</h3>
+        <hr>
+
+        <p><b>Name:</b> {{ patient.name }}</p>
+        <p><b>Age:</b> {{ patient.age }}</p>
+        <p><b>Gender:</b> {{ patient.gender }}</p>
+        <p><b>Mobile:</b> {{ patient.mobile }}</p>
+    </div>
+
+    <!-- ➕ ADD TREATMENT -->
+    <div class="card p-3 mb-3">
+        <h5>Add Treatment</h5>
+
+        <form method="POST" class="row g-2">
+
+            <div class="col-md-3">
+                <input name="treatment" class="form-control" placeholder="Treatment" required>
+            </div>
+
+            <div class="col-md-3">
+                <input name="description" class="form-control" placeholder="Description">
+            </div>
+
+            <div class="col-md-2">
+                <input name="cost" class="form-control" placeholder="Cost">
+            </div>
+
+            <div class="col-md-2">
+                <input type="date" name="date" class="form-control">
+            </div>
+
+            <div class="col-md-2">
+                <input type="date" name="next_visit" class="form-control">
+            </div>
+
+            <div class="col-md-12 mt-2">
+                <button class="btn btn-success w-100">Save Treatment</button>
+            </div>
+
+        </form>
+    </div>
+
+    <!-- 📋 TREATMENT HISTORY -->
+    <div class="card p-3">
+
+        <h5>History</h5>
+
+        <table class="table table-hover">
+            <tr>
+                <th>Treatment</th>
+                <th>Description</th>
+                <th>Cost</th>
+                <th>Date</th>
+                <th>Next Visit</th>
+            </tr>
+
+            {% for t in treatments %}
+            <tr>
+                <td>{{ t.treatment }}</td>
+                <td>{{ t.description }}</td>
+                <td>₹{{ t.cost }}</td>
+                <td>{{ t.date }}</td>
+                <td>{{ t.next_visit }}</td>
+            </tr>
+            {% endfor %}
+
+        </table>
+
+    </div>
+
+    <br>
+
+    <a href="/patients" class="btn btn-secondary">⬅ Back to Patients</a>
+
+</div>
+
+{% endblock %}

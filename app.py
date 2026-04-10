@@ -108,7 +108,9 @@ def send_reminder(name, mobile, message):
     print("📩 REMINDER SENT")
     print("To:", name, mobile)
     print("Message:", message)
-
+@app.route("/test")
+def test():
+    return "Flask is working"
 
 # ================= HOME =================
 @app.route("/")
@@ -254,29 +256,45 @@ def billing():
 def treatment(id):
     conn = get_db()
 
+    # ✅ Get patient
+    patient = conn.execute(
+        "SELECT * FROM patients WHERE id=?",
+        (id,)
+    ).fetchone()
+
+    if not patient:
+        conn.close()
+        return "Patient Not Found", 404
+
+    # ✅ Save treatment
     if request.method == "POST":
         conn.execute("""
-        INSERT INTO treatments(patient_id,treatment,description,cost,date,next_visit)
+        INSERT INTO treatments(patient_id, treatment, description, cost, date, next_visit)
         VALUES (?,?,?,?,?,?)
         """, (
             id,
-            request.form["treatment"],
-            request.form["description"],
-            request.form["cost"],
-            request.form["date"],
-            request.form["next_visit"]
+            request.form.get("treatment"),
+            request.form.get("description"),
+            request.form.get("cost") or 0,
+            request.form.get("date"),
+            request.form.get("next_visit")
         ))
         conn.commit()
 
-    data = conn.execute(
+    # ✅ Fetch treatments
+    treatments = conn.execute(
         "SELECT * FROM treatments WHERE patient_id=?",
         (id,)
     ).fetchall()
 
     conn.close()
 
-    return render_template("treatment.html", treatments=data, patient_id=id)
-
+    return render_template(
+        "treatments.html",
+        patient=patient,
+        treatments=treatments,
+        patient_id=id
+    )
 
 # ================= REPORT (PDF) =================
 @app.route("/report/<int:id>")
